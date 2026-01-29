@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # Redis - Required for job queues
+  redis:
+    image: redis:7-alpine
+    container_name: serviceline-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # API Server with Cron Jobs
+  api:
+    build: .
+    container_name: serviceline-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - ENABLE_CRON=true
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    env_file:
+      - ./config/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ./src/templates:/app/src/templates
+    command: npm start
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Queue Workers
+  worker:
+    build: .
+    container_name: serviceline-worker
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    env_file:
+      - ./config/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ./src/templates:/app/src/templates
+    command: npm run worker
+    restart: unless-stopped
+    deploy:
+      replicas: 2  # Run 2 worker instances for better throughput
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  default:
+    name: serviceline-network
