@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "scrape": "node src/scrapers/index.js",
+    "scrape": "node scripts/run-scraper.js",
+    "score": "node scripts/run-scorer.js",
+    "campaign": "node scripts/run-campaign.js",
     "test": "jest",
     "lint": "eslint src/**/*.js"
   },

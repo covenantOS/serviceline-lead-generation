@@ -1,82 +1,91 @@
 /**
  * Rate Limiter Utility
- * Manages request rate limiting to avoid being blocked
+ * Prevents overwhelming external services with requests
  */
 
 const logger = require('./logger');
 
 class RateLimiter {
-  constructor(options = {}) {
-    this.maxRequests = options.maxRequests || 10;
-    this.perMilliseconds = options.perMilliseconds || 60000; // 1 minute
-    this.requests = [];
-    this.delayBetweenRequests = options.delayBetweenRequests || 1000; // 1 second
+  constructor() {
+    this.limits = {
+      google: { requests: 0, limit: 10, window: 60000, resetTime: Date.now() },
+      yelp: { requests: 0, limit: 15, window: 60000, resetTime: Date.now() },
+      yellowpages: { requests: 0, limit: 20, window: 60000, resetTime: Date.now() },
+      enrichment: { requests: 0, limit: 30, window: 60000, resetTime: Date.now() },
+      default: { requests: 0, limit: 50, window: 60000, resetTime: Date.now() }
+    };
   }
 
   /**
-   * Wait until rate limit allows next request
+   * Check if request is allowed
    */
-  async wait() {
-    // Clean old requests
+  async checkLimit(service = 'default') {
+    const limiter = this.limits[service] || this.limits.default;
     const now = Date.now();
-    this.requests = this.requests.filter(
-      timestamp => now - timestamp < this.perMilliseconds
-    );
 
-    // Check if limit reached
-    if (this.requests.length >= this.maxRequests) {
-      const oldestRequest = this.requests[0];
-      const waitTime = this.perMilliseconds - (now - oldestRequest);
+    // Reset counter if window has passed
+    if (now - limiter.resetTime >= limiter.window) {
+      limiter.requests = 0;
+      limiter.resetTime = now;
+    }
+
+    // Check if limit exceeded
+    if (limiter.requests >= limiter.limit) {
+      const waitTime = limiter.window - (now - limiter.resetTime);
+      logger.warn(`Rate limit reached for ${service}. Waiting ${waitTime}ms...`);
+      await this.sleep(waitTime);
       
-      if (waitTime > 0) {
-        logger.debug(`Rate limit reached, waiting ${waitTime}ms`);
-        await this.sleep(waitTime);
-      }
+      // Reset after waiting
+      limiter.requests = 0;
+      limiter.resetTime = Date.now();
     }
 
-    // Add delay between requests
-    if (this.requests.length > 0) {
-      const timeSinceLastRequest = now - this.requests[this.requests.length - 1];
-      if (timeSinceLastRequest < this.delayBetweenRequests) {
-        const delay = this.delayBetweenRequests - timeSinceLastRequest;
-        await this.sleep(delay);
-      }
-    }
-
-    // Record this request
-    this.requests.push(Date.now());
+    // Increment counter
+    limiter.requests++;
+    
+    // Add small delay between requests
+    await this.sleep(Math.random() * 1000 + 500);
+    
+    return true;
   }
 
   /**
-   * Sleep for specified milliseconds
+   * Sleep utility
    */
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
-   * Reset rate limiter
+   * Reset all limits
    */
-  reset() {
-    this.requests = [];
+  resetAll() {
+    Object.keys(this.limits).forEach(service => {
+      this.limits[service].requests = 0;
+      this.limits[service].resetTime = Date.now();
+    });
+    logger.info('All rate limits reset');
   }
 
   /**
-   * Get current rate limit status
+   * Get current status
    */
   getStatus() {
-    const now = Date.now();
-    const recentRequests = this.requests.filter(
-      timestamp => now - timestamp < this.perMilliseconds
-    );
-
-    return {
-      requestsInWindow: recentRequests.length,
-      maxRequests: this.maxRequests,
-      windowMs: this.perMilliseconds,
-      available: this.maxRequests - recentRequests.length
-    };
+    const status = {};
+    Object.keys(this.limits).forEach(service => {
+      const limiter = this.limits[service];
+      status[service] = {
+        requests: limiter.requests,
+        limit: limiter.limit,
+        remaining: limiter.limit - limiter.requests,
+        resetIn: Math.max(0, limiter.window - (Date.now() - limiter.resetTime))
+      };
+    });
+    return status;
   }
 }
 
-module.exports = RateLimiter;
+// Singleton instance
+const rateLimiter = new RateLimiter();
+
+module.exports = rateLimiter;
