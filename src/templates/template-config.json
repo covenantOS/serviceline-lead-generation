@@ -1,0 +1,206 @@
+{
+  "industries": {
+    "hvac": {
+      "name": "HVAC",
+      "templates": [
+        {
+          "id": "intro-email",
+          "name": "Introduction Email",
+          "description": "Initial outreach highlighting pay-per-ranking and no ads fees",
+          "timing": "First contact",
+          "path": "hvac/intro-email.hbs"
+        },
+        {
+          "id": "follow-up-1",
+          "name": "Follow-up #1",
+          "description": "Follow-up with specific ranking analysis",
+          "timing": "4-5 days after initial email",
+          "path": "hvac/follow-up-1.hbs"
+        },
+        {
+          "id": "case-study",
+          "name": "Case Study Email",
+          "description": "Detailed success story with ROI numbers",
+          "timing": "7-10 days after initial email",
+          "path": "hvac/case-study.hbs"
+        }
+      ],
+      "keyPainPoints": [
+        "Paying monthly SEO fees with no rankings",
+        "Google Ads management fees eating budget",
+        "Missing emergency AC calls during peak season",
+        "Can't track marketing ROI",
+        "Fixed costs during slow winter months"
+      ],
+      "avgJobValue": "3500-8000",
+      "seasonality": "High demand summer (AC), moderate winter (heating)"
+    },
+    "plumbing": {
+      "name": "Plumbing",
+      "templates": [
+        {
+          "id": "intro-email",
+          "name": "Introduction Email",
+          "description": "Initial outreach focused on emergency call capture",
+          "timing": "First contact",
+          "path": "plumbing/intro-email.hbs"
+        },
+        {
+          "id": "follow-up-1",
+          "name": "Follow-up #1",
+          "description": "Follow-up with emergency keyword analysis",
+          "timing": "4-5 days after initial email",
+          "path": "plumbing/follow-up-1.hbs"
+        },
+        {
+          "id": "case-study",
+          "name": "Case Study Email",
+          "description": "Success story emphasizing emergency lead increase",
+          "timing": "7-10 days after initial email",
+          "path": "plumbing/case-study.hbs"
+        }
+      ],
+      "keyPainPoints": [
+        "Missing late-night emergency calls",
+        "Competitors ranking first for burst pipe/water leak searches",
+        "High Google Ads costs with low conversion",
+        "Limited visibility for high-ticket water heater replacements",
+        "Paying for SEO with no page 1 rankings"
+      ],
+      "avgJobValue": "450-2500",
+      "seasonality": "Year-round with spikes during freeze events"
+    },
+    "roofing": {
+      "name": "Roofing",
+      "templates": [
+        {
+          "id": "intro-email",
+          "name": "Introduction Email",
+          "description": "Initial outreach highlighting storm season readiness",
+          "timing": "First contact",
+          "path": "roofing/intro-email.hbs"
+        },
+        {
+          "id": "follow-up-1",
+          "name": "Follow-up #1",
+          "description": "Follow-up with insurance claim keyword analysis",
+          "timing": "4-5 days after initial email",
+          "path": "roofing/follow-up-1.hbs"
+        },
+        {
+          "id": "case-study",
+          "name": "Case Study Email",
+          "description": "Success story focused on insurance lead generation",
+          "timing": "7-10 days after initial email",
+          "path": "roofing/case-study.hbs"
+        }
+      ],
+      "keyPainPoints": [
+        "Missing storm damage leads when weather hits",
+        "Not ranking for insurance claim searches",
+        "High marketing costs year-round despite seasonal revenue",
+        "Competitors dominating during peak storm season",
+        "Google Ads fees reducing profitability on insurance jobs"
+      ],
+      "avgJobValue": "8500-18000",
+      "seasonality": "Highly seasonal - spring/summer storm seasons"
+    }
+  },
+  "sharedTemplates": [
+    {
+      "id": "meeting-confirmation",
+      "name": "Meeting Confirmation",
+      "description": "Sent after prospect books a call",
+      "path": "shared/meeting-confirmation.hbs"
+    },
+    {
+      "id": "post-call-follow-up",
+      "name": "Post-Call Follow-up",
+      "description": "Sent after initial strategy call with proposal",
+      "path": "shared/post-call-follow-up.hbs"
+    },
+    {
+      "id": "final-follow-up",
+      "name": "Final Follow-up",
+      "description": "Last touchpoint before closing the loop",
+      "path": "shared/final-follow-up.hbs"
+    }
+  ],
+  "emailSequences": {
+    "standard": [
+      {
+        "day": 0,
+        "template": "intro-email",
+        "industrySpecific": true
+      },
+      {
+        "day": 4,
+        "template": "follow-up-1",
+        "industrySpecific": true,
+        "condition": "no_response"
+      },
+      {
+        "day": 8,
+        "template": "case-study",
+        "industrySpecific": true,
+        "condition": "no_response"
+      },
+      {
+        "day": 14,
+        "template": "final-follow-up",
+        "industrySpecific": false,
+        "condition": "no_response"
+      }
+    ],
+    "fastTrack": [
+      {
+        "day": 0,
+        "template": "intro-email",
+        "industrySpecific": true
+      },
+      {
+        "day": 2,
+        "template": "follow-up-1",
+        "industrySpecific": true,
+        "condition": "no_response"
+      },
+      {
+        "day": 5,
+        "template": "final-follow-up",
+        "industrySpecific": false,
+        "condition": "no_response"
+      }
+    ]
+  },
+  "variableDefinitions": {
+    "required": [
+      "firstName",
+      "companyName",
+      "city",
+      "senderName",
+      "senderTitle",
+      "senderPhone",
+      "senderEmail"
+    ],
+    "optional": [
+      "lastName",
+      "state",
+      "companyWebsite",
+      "currentMonthlyCost",
+      "projectedMonthlyCost",
+      "estimatedAdManagementFee",
+      "avgJobValue",
+      "suggestedDay1",
+      "suggestedDay2",
+      "exampleCompany",
+      "topKeyword1",
+      "topKeyword2",
+      "topKeyword3"
+    ],
+    "calculated": [
+      "monthlySavings",
+      "totalAnnualSavings",
+      "leadIncrease"
+    ]
+  }
+}
