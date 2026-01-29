@@ -1,196 +1,343 @@
 # ServiceLine Lead Generation System
 
-An automated lead scraping, scoring, and email outreach system designed to identify and engage potential ServiceLine customers.
+🚀 **Complete lead generation, scoring, and campaign automation system for home service businesses (HVAC, Plumbing, Roofing, Electrical)**
 
-## Overview
+## 🎯 Features
 
-This system automates the process of:
-- **Web Scraping**: Extracting potential leads from ServiceLine and related platforms
-- **Lead Scoring**: Intelligently scoring leads based on multiple criteria
-- **Email Outreach**: Automating personalized email campaigns to qualified leads
-- **API Integration**: RESTful API for managing leads and campaigns
-- **Authentication**: Secure access control for team members
+### Lead Generation
+- ✅ **Multi-source web scraping** (Google Maps, Yelp, Yellow Pages)
+- ✅ **Home service industries**: HVAC, Plumbing, Roofing, Electrical
+- ✅ **Automated data enrichment** (website analysis, SEO metrics, ad presence)
+- ✅ **Company size estimation**
+- ✅ **Duplicate detection**
 
-## Features
+### Intelligent Lead Scoring (0-100)
+- ✅ **7 scoring components** with customizable weights
+- ✅ **Inverse scoring** (poor digital presence = high scores = more opportunity)
+- ✅ **Tier classification**: Hot Lead, Warm Lead, Cold Lead, Low Priority
+- ✅ **Actionable recommendations** for each lead
+- ✅ **Batch scoring** support
 
-- 🔍 **Multi-Source Scraping**: Support for various web scraping techniques (Puppeteer, Playwright, Axios/Cheerio)
-- 📊 **Smart Lead Scoring**: Configurable scoring algorithms based on company size, industry, engagement, etc.
-- 📧 **Email Automation**: Template-based email campaigns with personalization
-- 🔐 **Secure Authentication**: JWT-based auth system
-- 📈 **RESTful API**: Full CRUD operations for leads and campaigns
-- 🗄️ **Database Support**: PostgreSQL and MongoDB support
-- ⏰ **Scheduled Tasks**: Cron-based automation for scraping and outreach
-- 📝 **Logging**: Comprehensive logging with Winston
+### Email Campaign Automation
+- ✅ **Professional templates** for each industry
+- ✅ **Handlebars templating** with personalization
+- ✅ **Email sequences** (intro, follow-ups, case studies)
+- ✅ **Variable interpolation**
+- ✅ **Template preview** functionality
 
-## Project Structure
+### RESTful API
+- ✅ **JWT authentication** with role-based access
+- ✅ **Lead management** (CRUD + bulk operations)
+- ✅ **Campaign management**
+- ✅ **Message sending** with template support
+- ✅ **Analytics** (lead stats, scoring distribution, campaign performance)
+- ✅ **Scraping job management**
+- ✅ **Rate limiting** and security middleware
+- ✅ **Input validation** with Joi
+- ✅ **Comprehensive error handling**
+
+### Database
+- ✅ **Supabase/PostgreSQL** integration
+- ✅ **Row Level Security (RLS)** policies
+- ✅ **Optimized indexes**
+- ✅ **Full-text search** support
+- ✅ **Automatic timestamps**
+
+## 📊 System Architecture
 
 ```
-serviceline-lead-generation/
-├── src/
-│   ├── scrapers/          # Web scraping modules
-│   ├── scoring/           # Lead scoring algorithms
-│   ├── templates/         # Email templates
-│   ├── api/              # API routes and controllers
-│   ├── auth/             # Authentication middleware
-│   └── index.js          # Main application entry point
-├── config/               # Configuration and environment variables
-├── tests/               # Test files
-├── logs/                # Application logs
-├── package.json         # Project dependencies
-└── README.md           # This file
+┌─────────────────┐
+│  Web Scrapers   │
+│ (Puppeteer/Axios)│
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Lead Enrichment │
+│  & Analysis     │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Lead Scoring   │
+│   Algorithm     │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│    Supabase     │
+│    Database     │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   RESTful API   │
+│  (Express.js)   │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    ▼         ▼
+┌────────┐ ┌──────────┐
+│Campaign│ │Analytics │
+│Manager │ │Dashboard │
+└────────┘ └──────────┘
 ```
 
-## Installation
+## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js >= 18.0.0
 - npm >= 9.0.0
-- PostgreSQL or MongoDB database
-- Email service credentials (SendGrid, Mailgun, or SMTP)
+- Supabase account (free tier works)
+- Email service (SMTP, SendGrid, or Mailgun)
 
-### Setup
+### Installation
 
-1. Clone the repository:
 ```bash
+# Clone repository
 git clone https://github.com/covenantOS/serviceline-lead-generation.git
 cd serviceline-lead-generation
-```
 
-2. Install dependencies:
-```bash
+# Install dependencies
 npm install
+
+# Install Playwright browsers (for scraping)
+npx playwright install chromium
 ```
 
-3. Configure environment variables:
+### Configuration
+
 ```bash
+# Copy environment template
 cp config/.env.example config/.env
+
+# Edit config/.env with your credentials
 ```
 
-Edit `config/.env` with your credentials:
+**Required environment variables**:
+
 ```env
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/leads
-MONGO_URI=mongodb://localhost:27017/serviceline
+# Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_KEY=your_service_key
 
-# Email Service
-EMAIL_SERVICE=sendgrid
-SENDGRID_API_KEY=your_api_key
+# JWT
+JWT_SECRET=your_very_secure_secret_key_here
+
+# Email (choose one)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
 FROM_EMAIL=leads@yourcompany.com
-
-# Authentication
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRY=7d
-
-# Scraping Configuration
-SCRAPE_INTERVAL=24h
-MAX_CONCURRENT_SCRAPES=5
-
-# API
-PORT=3000
-NODE_ENV=development
+FROM_NAME=ServiceLine
 ```
 
-4. Run the application:
+### Database Setup
+
 ```bash
-# Development mode with auto-reload
+# 1. Create Supabase project at https://supabase.com
+
+# 2. Run database schema
+#    - Open Supabase SQL Editor
+#    - Copy/paste contents of database/schema.sql
+#    - Execute
+
+# 3. Create admin user (see database/README.md)
+```
+
+### Run the Application
+
+```bash
+# Development mode (with auto-reload)
 npm run dev
 
 # Production mode
 npm start
-
-# Run scraper only
-npm run scrape
 ```
 
-## Usage
+API will be available at: `http://localhost:3000`
 
-### Scraping Leads
+## 📖 Usage Examples
 
-The scraper can be configured to run on a schedule or manually triggered:
-
-```javascript
-// Manual scraping
-const scraper = require('./src/scrapers/serviceline-scraper');
-const leads = await scraper.scrapeLeads();
-```
-
-### Scoring Leads
-
-Leads are automatically scored based on configurable criteria:
-
-```javascript
-const scorer = require('./src/scoring/lead-scorer');
-const score = scorer.calculateScore(lead);
-```
-
-### Sending Emails
-
-Use templates for personalized outreach:
-
-```javascript
-const emailer = require('./src/templates/email-sender');
-await emailer.sendTemplate('intro-email', lead, variables);
-```
-
-### API Endpoints
-
-```
-POST   /api/auth/login          # Authenticate user
-GET    /api/leads               # Get all leads
-GET    /api/leads/:id           # Get specific lead
-POST   /api/leads               # Create new lead
-PUT    /api/leads/:id           # Update lead
-DELETE /api/leads/:id           # Delete lead
-POST   /api/campaigns           # Create email campaign
-GET    /api/campaigns/:id       # Get campaign status
-```
-
-## Configuration
-
-### Scoring Algorithm
-
-Customize scoring weights in `config/scoring-config.json`:
-
-```json
-{
-  "weights": {
-    "companySize": 0.3,
-    "industry": 0.2,
-    "engagement": 0.25,
-    "budget": 0.15,
-    "decisionMaker": 0.1
-  }
-}
-```
-
-### Email Templates
-
-Create templates in `src/templates/` using Handlebars or EJS syntax.
-
-## Development
-
-### Running Tests
+### 1. Scrape Leads
 
 ```bash
-npm test
+# Scrape HVAC businesses in California
+npm run scrape HVAC "California" 50
+
+# Scrape all industries in multiple locations
+npm run campaign run
 ```
 
-### Linting
+### 2. Score Leads
 
 ```bash
-npm run lint
+# Score all unscored leads
+npm run score
 ```
 
-## Security Considerations
+### 3. Use the API
 
-- Never commit `.env` files or credentials
-- Use rate limiting on API endpoints
-- Implement proper error handling
-- Validate all user inputs
-- Follow web scraping best practices and respect robots.txt
-- Comply with GDPR and CAN-SPAM regulations
+**Register and login**:
 
-## Contributing
+```bash
+# Register new user
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "securepassword123",
+    "name": "John Doe"
+  }'
+
+# Login (returns access token)
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "securepassword123"
+  }'
+```
+
+**Get leads**:
+
+```bash
+curl -X GET "http://localhost:3000/api/leads?industry=HVAC&minScore=80" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+**Send email**:
+
+```bash
+curl -X POST http://localhost:3000/api/messages/send \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "leadId": "lead-uuid-here",
+    "templateId": "hvac/intro-email.hbs",
+    "variables": {
+      "firstName": "John",
+      "senderName": "Sarah Johnson",
+      "senderTitle": "Marketing Consultant",
+      "senderPhone": "555-1234",
+      "senderEmail": "sarah@serviceline.com"
+    }
+  }'
+```
+
+**Start scraping job**:
+
+```bash
+curl -X POST http://localhost:3000/api/scraping/start \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "industries": ["HVAC", "PLUMBING"],
+    "locations": ["Phoenix, AZ"],
+    "maxLeadsPerIndustry": 50
+  }'
+```
+
+## 📚 Documentation
+
+- **API Documentation**: [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md)
+- **Scraping Guide**: [docs/SCRAPING_GUIDE.md](docs/SCRAPING_GUIDE.md)
+- **Scoring Guide**: [docs/SCORING_GUIDE.md](docs/SCORING_GUIDE.md)
+- **Database Setup**: [database/README.md](database/README.md)
+- **Email Templates**: [src/templates/README.md](src/templates/README.md)
+
+## 🏗️ Project Structure
+
+```
+serviceline-lead-generation/
+├── src/
+│   ├── controllers/       # API request handlers
+│   ├── routes/           # Express route definitions
+│   ├── middleware/       # Auth, validation, error handling
+│   ├── validation/       # Joi schemas
+│   ├── database/         # Supabase client & repositories
+│   ├── scrapers/         # Web scraping modules
+│   ├── scoring/          # Lead scoring algorithm
+│   ├── templates/        # Email templates (Handlebars)
+│   ├── utils/           # Logger, rate limiter
+│   ├── app.js           # Express app setup
+│   └── index.js         # Entry point
+├── scripts/             # CLI scripts
+├── database/            # SQL schema & setup docs
+├── docs/               # Documentation
+├── config/             # Configuration & .env
+└── tests/              # Test files (coming soon)
+```
+
+## 🔐 Security Features
+
+- ✅ JWT-based authentication with refresh tokens
+- ✅ Bcrypt password hashing (10 rounds)
+- ✅ Role-based access control (admin, user, viewer)
+- ✅ Rate limiting (API, auth, scraping endpoints)
+- ✅ Helmet.js security headers
+- ✅ Input validation with Joi
+- ✅ SQL injection protection (parameterized queries)
+- ✅ Row Level Security (RLS) in database
+- ✅ CORS configuration
+
+## 📊 API Endpoints Summary
+
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - User login
+- `POST /api/auth/refresh` - Refresh access token
+- `GET /api/auth/me` - Get current user profile
+- `POST /api/auth/change-password` - Change password
+
+### Leads
+- `GET /api/leads` - List leads (with filtering)
+- `GET /api/leads/:id` - Get specific lead
+- `POST /api/leads` - Create lead
+- `PUT /api/leads/:id` - Update lead
+- `DELETE /api/leads/:id` - Delete lead (admin only)
+- `POST /api/leads/bulk/import` - Bulk import
+- `GET /api/leads/export/csv` - Export CSV
+
+### Campaigns
+- `GET /api/campaigns` - List campaigns
+- `POST /api/campaigns` - Create campaign
+- `GET /api/campaigns/:id/stats` - Campaign statistics
+
+### Messages
+- `GET /api/messages` - List messages
+- `POST /api/messages/send` - Send email
+- `GET /api/messages/templates` - List templates
+
+### Analytics
+- `GET /api/analytics/leads` - Lead statistics
+- `GET /api/analytics/scoring` - Scoring distribution
+- `GET /api/analytics/campaigns` - Campaign performance
+- `GET /api/analytics/dashboard` - Dashboard overview
+
+### Scraping
+- `POST /api/scraping/start` - Start scraping job
+- `GET /api/scraping/status/:jobId` - Get job status
+- `GET /api/scraping/jobs` - List jobs
+
+## 🎯 ServiceLine Value Propositions
+
+The system is designed to promote ServiceLine's unique offerings:
+
+1. **Pay-Per-Ranking SEO**
+   - Only pay when ranked on page 1
+   - Transparent pricing: $50-$150/keyword
+   - 90-day ranking guarantee
+
+2. **$0 Google Ads Management**
+   - No 15-20% management fees
+   - Keep 100% of ad budget
+   - Full campaign optimization
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -198,24 +345,22 @@ npm run lint
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
+## 📄 License
 
 MIT License - see LICENSE file for details
 
-## Support
+## 🙏 Acknowledgments
 
-For issues and questions, please open an issue on GitHub.
+- Built with Express.js, Supabase, Puppeteer, and Node.js
+- Email templates use Handlebars templating
+- Lead scoring algorithm inspired by marketing automation best practices
 
-## Roadmap
+## 📧 Support
 
-- [ ] Add support for LinkedIn scraping
-- [ ] Implement AI-powered lead scoring with machine learning
-- [ ] Add dashboard UI for lead management
-- [ ] Integrate with CRM systems (Salesforce, HubSpot)
-- [ ] Add A/B testing for email templates
-- [ ] Implement webhook notifications
-- [ ] Add data enrichment APIs (Clearbit, Hunter.io)
+For questions or issues:
+- Open a GitHub issue
+- Email: support@serviceline.com
 
 ---
 
-**Note**: Always ensure compliance with website terms of service and applicable laws when scraping data.
+**Note**: Always ensure compliance with website terms of service, robots.txt, and applicable laws (GDPR, CAN-SPAM, etc.) when scraping data and sending emails.
