@@ -8,6 +8,7 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const logger = require('./utils/logger');
+const { errorHandler, notFound } = require('./api/middleware/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,37 +25,48 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+// Health check
 app.get('/', (req, res) => {
   res.json({
     message: 'ServiceLine Lead Generation System API',
     version: '1.0.0',
-    status: 'running'
+    status: 'running',
+    timestamp: new Date().toISOString()
   });
 });
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
-});
-
-// API Routes (to be implemented)
-// app.use('/api/auth', require('./auth/routes'));
-// app.use('/api/leads', require('./api/leads'));
-// app.use('/api/campaigns', require('./api/campaigns'));
-
-// Error handling
-app.use((err, req, res, next) => {
-  logger.error(err.stack);
-  res.status(500).json({
-    error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
   });
 });
 
+// API Routes
+app.use('/api/leads', require('./api/routes/leads'));
+app.use('/api/campaigns', require('./api/routes/campaigns'));
+app.use('/api/messages', require('./api/routes/messages'));
+app.use('/api/analytics', require('./api/routes/analytics'));
+app.use('/api/scraping', require('./api/routes/scraping'));
+
+// 404 handler
+app.use(notFound);
+
+// Error handling
+app.use(errorHandler);
+
 // Start server
-app.listen(PORT, () => {
-  logger.info(`ServiceLine Lead Generation System running on port ${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    logger.info('='.repeat(60));
+    logger.info('ServiceLine Lead Generation System');
+    logger.info('='.repeat(60));
+    logger.info(`Server running on port ${PORT}`);
+    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    logger.info(`API Base: http://localhost:${PORT}/api`);
+    logger.info('='.repeat(60));
+  });
+}
 
 module.exports = app;
